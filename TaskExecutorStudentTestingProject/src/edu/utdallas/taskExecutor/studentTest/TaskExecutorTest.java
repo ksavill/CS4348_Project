@@ -14,7 +14,7 @@ public class TaskExecutorTest
         Runnable inserter = new Runnable() {
             public void run()
             {
-                for (int idx = 0; idx < 200; idx++) {
+                for (int idx = 0; idx < 300; idx++) {
                     // Note that Threads are assigned names.
                     String name = "SimpleTask" + idx;
                     Task myTask = new SimpleTestTask(name);
