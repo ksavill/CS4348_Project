@@ -6,8 +6,8 @@ public class BlockingFIFOQueue {
 
     public Task[] taskPool;
     public int frontQueue, backQueue;
-    Object queueFull, queueEmpty;
-    public static int arraySize = 100;
+    Object queueFull, queueEmpty; // Two lock objects.
+    public static int arraySize = 100; // Fixed array length specified by project description.
 
     public BlockingFIFOQueue()
     {
@@ -18,6 +18,7 @@ public class BlockingFIFOQueue {
         queueEmpty = new Object();
     }
 
+    // Adds tasks into the Blocking Queue.
     public void put(Task thisTask)
     {
         if (isQueueFull())
@@ -25,7 +26,7 @@ public class BlockingFIFOQueue {
             synchronized (queueFull)
             {
                 try {
-                    queueFull.wait();
+                    queueFull.wait(); // Queue is full, wait for take().
                 } catch (InterruptedException e) {
 
                 }
@@ -35,7 +36,8 @@ public class BlockingFIFOQueue {
         {
             if (isQueueEmpty())
             {
-                frontQueue = backQueue = 0;
+                frontQueue = 0;
+                backQueue = 0;
             } else {
                 backQueue = (backQueue + 1) % arraySize;
             }
@@ -45,12 +47,13 @@ public class BlockingFIFOQueue {
             {
                 if (isQueueFull())
                 {
-                    queueEmpty.notify();
+                    queueEmpty.notify(); // Signal waiting take() threads.
                 }
             }
         }
     }
 
+    // Returns the next task to be executed from the Blocking Queue.
     public Task take()
     {
         if (isQueueEmpty())
@@ -58,7 +61,7 @@ public class BlockingFIFOQueue {
             synchronized (queueEmpty)
             {
                 try {
-                    queueEmpty.wait();
+                    queueEmpty.wait(); // Queue is empty, wait for put().
                 } catch (InterruptedException e) {
 
                 }
@@ -69,25 +72,28 @@ public class BlockingFIFOQueue {
             Task thisTask = taskPool[frontQueue];
             if (frontQueue == backQueue)
             {
-                frontQueue = backQueue = -1;
+                frontQueue = -1;
+                backQueue = -1;
             } else {
                 frontQueue = (frontQueue + 1) % arraySize;
             }
 
             synchronized (queueFull)
             {
-                queueFull.notify();
+                queueFull.notify(); // Signal waiting put() threads.
             }
 
             return thisTask;
         }
     }
 
+    // Checks if the Blocking Queue is full.
     public boolean isQueueFull()
     {
         return ((backQueue + 1) % arraySize == frontQueue);
     }
 
+    // Checks if the Blocking Queue is empty.
     public boolean isQueueEmpty()
     {
         return (backQueue == -1 && frontQueue == -1);

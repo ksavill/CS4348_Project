@@ -14,7 +14,7 @@ public class TaskRunner implements Runnable{
     @Override
     public void run()
     {
-        while (true)
+        while (true) // While there are still tasks to be taken from the Blocking Queue...
         {
             Task newTask = blockingFIFOQueue.take();
             try {
